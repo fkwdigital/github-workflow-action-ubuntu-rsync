@@ -19,6 +19,7 @@ Rsync‑over‑SSH deploy with:
 
 ### Optional
 
+- `SSH_PASSPHRASE` - Passphrase for the SSH private key (required by some managed hosts)
 - `REMOTE_PORT` - SSH port (default: `22`)
 - `SOURCE` - Local source directory to deploy (default: `public/`)
 - `ARGS` or `RSYNC_ARGS` - Custom rsync flags (default: `-azvr --inplace --exclude='.*' --no-perms --no-times --delete-after`)
@@ -207,6 +208,20 @@ jobs:
     REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
     REMOTE_USER: ${{ secrets.REMOTE_USER }}
     REMOTE_PORT: 2222
+    REMOTE_PATH: '/var/www/html'
+    SOURCE: './public/'
+```
+
+### Deploy with SSH Passphrase
+
+```yaml
+- name: Deploy with SSH Passphrase
+  uses: fkwdigital/github-workflow-action-ubuntu-rsync@v1
+  with:
+    SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+    SSH_PASSPHRASE: ${{ secrets.SSH_PASSPHRASE }}
+    REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+    REMOTE_USER: ${{ secrets.REMOTE_USER }}
     REMOTE_PATH: '/var/www/html'
     SOURCE: './public/'
 ```

@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 const rsync = require('rsyncwrapper');
 const { sync: commandExists } = require('command-exists');
 
@@ -27,6 +27,33 @@ function ensureRsync() {
         reject(new Error(`rsync install failed: ${err.message}`));
         return;
       }
+      resolve();
+    });
+  });
+}
+
+/**
+ * Strip the passphrase from a private key file in-place so rsync can use it
+ * directly with -i. Uses spawn to avoid shell injection with special characters.
+ *
+ * @since 1.1.0
+ * @param {string} keyPath    - absolute path to the private key file
+ * @param {string} passphrase - current passphrase protecting the key
+ * @returns {Promise<void>}
+ */
+function removePassphrase(keyPath, passphrase) {
+  return new Promise((resolve, reject) => {
+    const proc = spawn('ssh-keygen', ['-p', '-P', passphrase, '-N', '', '-f', keyPath]);
+    let stderr = '';
+    proc.stderr.on('data', (d) => {
+      stderr += d.toString();
+    });
+    proc.on('close', (code) => {
+      if (code !== 0) {
+        reject(new Error(`ssh-keygen failed (exit ${code}): ${stderr}`));
+        return;
+      }
+      console.log('[SSH] Key unlocked for deployment');
       resolve();
     });
   });
@@ -166,6 +193,10 @@ async function main() {
   const home = process.env.HOME || os.homedir();
   validateDir(path.join(home, '.ssh'));
   validateFile(path.join(home, '.ssh', 'known_hosts'));
+
+  if (cfg.passphrase) {
+    await removePassphrase(keyPath, cfg.passphrase);
+  }
 
   await ensureRsync();
 

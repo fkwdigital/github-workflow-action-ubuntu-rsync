@@ -17,6 +17,7 @@ function getInputs() {
     user: fromEnv('REMOTE_USER'),
     port: fromEnv('REMOTE_PORT', '22'),
     key: fromEnv('SSH_PRIVATE_KEY'),
+    passphrase: fromEnv('SSH_PASSPHRASE', ''),
     keyName: fromEnv('DEPLOY_KEY_NAME', 'deploy_key'),
     remotePath: fromEnv('REMOTE_PATH'),
     source: fromEnv('SOURCE', DEFAULT_SOURCE),

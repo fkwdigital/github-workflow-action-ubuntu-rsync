@@ -23,7 +23,7 @@
   },
   "scripts": {
     "build": "npm run lint && ncc build ./src/index.js -o dist -m",
-    "lint": "eslint ./src/index.js",
-    "lint:fix": "eslint ./src/index.js --fix"
+    "lint": "eslint ./src/",
+    "lint:fix": "eslint ./src/ --fix"
   }
 }
