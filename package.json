@@ -1,18 +1,20 @@
 {
   "name": "github-workflow-action-ubuntu-rsync",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "GitHub workflow action customized specifically for remote Ubuntu servers.",
   "main": "dist/index.js",
+  "engines": {
+    "node": ">=24"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/fkwdigital/github-workflow-action-ubuntu-rsync.git"
   },
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "author": "Chris Gleason <chris@fkwdigital.com>",
   "dependencies": {
     "command-exists": "1.2.9",
-    "node-cmd": "4.0.0",
     "rsyncwrapper": "3.0.1"
   },
   "devDependencies": {

@@ -19,13 +19,39 @@ Rsync‑over‑SSH deploy with:
 
 ### Optional
 
+- `KNOWN_HOSTS` - Known hosts entry for the remote server. Strongly recommended — omitting disables host key verification. See [KNOWN_HOSTS](#known_hosts) below.
 - `SSH_PASSPHRASE` - Passphrase for the SSH private key (required by some managed hosts)
 - `REMOTE_PORT` - SSH port (default: `22`)
 - `SOURCE` - Local source directory to deploy (default: `public/`)
-- `ARGS` or `RSYNC_ARGS` - Custom rsync flags (default: `-azvr --inplace --exclude='.*' --no-perms --no-times --delete-after`)
+- `ARGS` or `RSYNC_ARGS` - Custom rsync flags (default: `-azvr --inplace --exclude='.*' --no-perms --no-times`)
 - `EXCLUDE_FILE` - Path to custom exclude file (completely replaces default excludes)
 - `EXTRA_EXCLUDE` - Comma-separated list of additional excludes (appends to default excludes)
-- `SCRIPT` - Shell commands to run on the remote server after deployment (e.g., 'cd /var/www/html && wp cache flush')
+- `SCRIPT` - Shell commands to run on the remote server after deployment (e.g., 'cd /var/www/html && wp cache flush'). The whole value runs on the remote server, over the same SSH connection settings as the deploy.
+
+## KNOWN_HOSTS
+
+Without a `KNOWN_HOSTS` value the action connects with `StrictHostKeyChecking=no`, which disables host key verification and leaves the deploy vulnerable to MITM attacks. Setting this input enables `StrictHostKeyChecking=yes` for both rsync and `SCRIPT`.
+
+**Get the value from your server (run this once locally or in your CI setup):**
+
+```bash
+ssh-keyscan -H your-server-ip-or-hostname
+```
+
+Copy the output and store it as a GitHub secret, then pass it to the action:
+
+```yaml
+- name: Deploy to Server
+  uses: fkwdigital/github-workflow-action-ubuntu-rsync@v1
+  with:
+    SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+    KNOWN_HOSTS: ${{ secrets.KNOWN_HOSTS }}
+    REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+    REMOTE_USER: ${{ secrets.REMOTE_USER }}
+    REMOTE_PATH: '/var/www/html'
+```
+
+The private key file is deleted from the runner when the action exits.
 
 ## Path Configuration
 
@@ -48,7 +74,8 @@ The action deploys the contents of your `SOURCE` directory into `REMOTE_PATH`.
 
 ## Usage
 
-See example in `.github/workflows/deploy.yml` and in this doc.
+See example in `examples/deploy.yml` and in this doc. Copy it into `.github/workflows/` of the repository you
+deploy from, not this action's repository.
 
 ## Default Excludes
 
@@ -118,7 +145,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Deploy to Server
         uses: fkwdigital/github-workflow-action-ubuntu-rsync@v1
@@ -268,7 +295,7 @@ Verify your `REMOTE_PATH` is correct. Common paths:
 
 ## License
 
-MIT
+GPL-3.0-or-later. See [LICENSE](LICENSE).
 
 ## Support
 
